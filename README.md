@@ -76,6 +76,7 @@ VRChat SDK のコントロールパネルの「Build & Upload」から、ワー�
 | 連打の間隔を変える | `cooldownSeconds`（既定 0.5 秒） |
 | ポップアップの表示時間 | `popupSeconds`（既定 2 秒） |
 | 誰でもリセットできるようにする | `onlyMasterCanReset` をオフにする |
+| 英語など他の言語にする | `shoutNames`、各ボタンの Interaction Text、ポップアップの文字を書き換える（例：Marx / Nietzsche / Freud）。英語は Unity 標準のフォントで表示でき、日本語フォントの準備はいらない |
 
 ## しくみ
 
