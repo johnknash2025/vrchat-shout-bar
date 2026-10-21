@@ -26,15 +26,17 @@
 | OS | Unity | プロジェクト管理（VRChat SDK を入れる道具） |
 |---|---|---|
 | Windows | Unity Hub から 2022.3.22f1（Windows Build Support は標準） | 公式の VRChat Creator Companion（VCC）。CLI で済ませるなら `vrc-get` |
-| macOS（Apple シリコン / Intel） | Unity Hub から 2022.3.22f1。iPad などで試すなら iOS Build Support、PC 向けにアップロードするなら Windows Build Support (Mono) | VCC は Windows 専用。代わりに `vrc-get`（CLI）か ALCOM（GUI）。どちらも `vrc-get/vrc-get` の GitHub リリース |
+| macOS（Apple シリコン / Intel） | Unity Hub から 2022.3.22f1。**Apple シリコンでも Intel 版（x86_64、Rosetta で動く）を入れる**（下の「つまずきやすい点」）。iPad などで試すなら iOS Build Support、PC 向けにアップロードするなら Windows Build Support (Mono) | VCC は Windows 専用。代わりに `vrc-get`（CLI）か ALCOM（GUI）。どちらも `vrc-get/vrc-get` の GitHub リリース |
 | Linux | Unity Hub（AppImage / deb）から 2022.3.22f1 | `vrc-get` |
 
-Unity Hub の CLI で入れる例（macOS、Apple シリコン、iOS 付き）：
+Unity Hub の CLI で入れる例（macOS、Intel 版、iOS 付き。Apple シリコンでもこちら）：
 
 ```sh
 "/Applications/Unity Hub.app/Contents/MacOS/Unity Hub" -- --headless install \
-  --version 2022.3.22f1 --changeset 887be4894c44 --architecture arm64 --module ios
+  --version 2022.3.22f1 --changeset 887be4894c44 --architecture x86_64 --module ios
 ```
+
+Apple シリコンの Mac では `/Applications/Unity/Hub/Editor/2022.3.22f1-x86_64/` に入る。
 
 Windows では `"C:\Program Files\Unity Hub\Unity Hub.exe" -- --headless install ...`、Linux では `unityhub -- --headless install ...` に読み替える（`--architecture` は Apple シリコン以外では不要）。
 
@@ -43,7 +45,7 @@ Windows では `"C:\Program Files\Unity Hub\Unity Hub.exe" -- --headless install
 VCC か ALCOM があれば、Worlds テンプレートで作るのが一番簡単です。CLI だけで作る場合：
 
 ```sh
-UNITY=<Unity 2022.3.22f1 の実行ファイル>   # macOS: /Applications/Unity/Hub/Editor/2022.3.22f1/Unity.app/Contents/MacOS/Unity
+UNITY=<Unity 2022.3.22f1 の実行ファイル>   # macOS: /Applications/Unity/Hub/Editor/2022.3.22f1-x86_64/Unity.app/Contents/MacOS/Unity
 PROJECT=<作る場所>/shout-bar-world
 
 "$UNITY" -batchmode -quit -nographics -createProject "$PROJECT"
@@ -78,12 +80,16 @@ grep "\[ShoutBar\]" scene.log        # "[ShoutBar] SCENE: saved Assets/Scenes/Sh
 Unity でプロジェクトとシーンを開き、再生ボタン（▶）を押す。WASD で移動し、ボタンにマウスを向けて左クリックすると、粒が飛び、名前が 2 秒浮かぶ。macOS では次で開ける：
 
 ```sh
-open -a /Applications/Unity/Hub/Editor/2022.3.22f1/Unity.app --args -projectPath "$PROJECT" -openfile "$PROJECT/Assets/Scenes/ShoutBarTest.unity"
+"$UNITY" -projectPath "$PROJECT" &
+# 開いたら Project の Assets/Scenes/ShoutBarTest をダブルクリックして、▶ を押す
 ```
 
 ClientSim は 1 人分の確認だけ。複数人の同期は、Windows の VRChat の「Build & Test」でクライアントを 2 つ起動するか、非公開でアップロードして 2 台の端末で確かめる（アップロードは人が行う）。
 
 ## つまずきやすい点（実際に起きたこと）
+
+- **Apple シリコンの Mac では、エディタの画面が出ない**：Apple シリコン版（arm64）の Unity で開くと、SDK の UdonSharp が Harmony で関数を書き換えようとして `mprotect returned EACCES` が毎フレーム出続け、エディタの窓がまともに表示されない。**Intel 版（x86_64）を Rosetta で動かす**と解消する（窓のタイトルに `<Rosetta>` と出る）。バッチモードのコンパイルとシーン組み立ては arm64 版でも通る。
+- **窓が別の画面に開く**：外部モニターと内蔵画面がある Mac では、Unity の窓が内蔵画面に開いて見つからないことがある。利用者には両方の画面を見てもらう。Unity Hub だけが前に出ることもあるが、エディタは別に起動している。
 
 - **UdonSharp の proxy API はバッチモードで失敗する**：`AddUdonSharpComponent` や `CopyProxyToUdon` は、`-executeMethod` の直後だと `Cannot run serialization on U# behaviour ... with outdated script version` で落ちる（U# の再コンパイルがエディタの更新ループ待ちのため）。`ShoutBarSetup.cs` は proxy を使わず、`UdonBehaviour` に `programSource` と public 変数を直接設定している。
 - **編集用スクリプトを書き換えた直後の実行**も同じ理由で失敗しやすい。書き換えたら `CompileCheck` を 1 回挟む。
