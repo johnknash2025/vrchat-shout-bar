@@ -1,95 +1,97 @@
-# 叫びバー：ボタン同期ギミック
+# Shout Bar: a synced button gimmick
 
-![叫びバーのデモ：ボタンを押すと名前が浮かび、粒が飛び散る](docs/demo.gif)
+English | [日本語](README.ja.md)
 
-*Unity の ClientSim（VRChat の動きをエディタで再現する道具）での動作。高画質版：[docs/demo.mp4](docs/demo.mp4)。粒がピンクの四角なのは、パーティクルの見た目（マテリアル）をまだ設定していないため。*
+![Shout bar demo: pressing a button makes a name float up and particles scatter](docs/demo.gif)
 
-VRChat のワールドに置く「叫びボタン」です。カウンターのボタンを押すと「マルクス！」「ニーチェ！」「フロイト！」のような叫びが発動し、その場にいる全員に音・パーティクル・ポップアップの演出が同時に出ます。押された回数は累計と割合でスコアボードに表示され、後から入ってきた人にも見えます。
+*Recorded in Unity's ClientSim (the tool that reproduces VRChat's behaviour inside the editor). Higher-quality version: [docs/demo.mp4](docs/demo.mp4). The particles look like pink squares because their material has not been set up yet.*
 
-アニメの上映会やイベントバーで、みんなでツッコミを入れながら盛り上がる、という使い方を想定しています。
+A "shout button" you place in a VRChat world. Press a button on the counter and a shout goes off — "Marx!", "Nietzsche!", "Freud!" — and everyone present sees the same sound, particle and popup effects at the same time. Press counts are shown on a scoreboard as totals and percentages, and people who join later see them too.
 
-> **状態（2026-10-21）**：Unity 2022.3.22f1（macOS、Intel 版を Rosetta で）と Worlds SDK 3.10.5 で、コンパイルと ClientSim でのボタン操作・演出を確認しました。複数人での同期は**まだ確認していません**。試した方は、結果を Issue で教えてもらえると助かります。
+It is meant for anime watch parties and event bars, where everyone joins in with their own reactions.
 
-> **AI に組み込んでもらう場合**：Claude Code や Codex などに「[`AGENTS.md`](AGENTS.md) を読んで、叫びバーのテスト用ワールドを作って」と頼んでください。Windows・macOS・Linux のどれでも、プロジェクト作成からテスト用シーンの組み立てまでを AI が進められるように書いてあります（Unity と VRChat のアカウント操作だけは、ご自身で行います）。
+> **Status (2026-10-21)**: compilation and button interaction / effects were confirmed in ClientSim with Unity 2022.3.22f1 (macOS, Intel build under Rosetta) and Worlds SDK 3.10.5. Multi-user syncing has **not been confirmed yet**. If you try it, please report the result in an Issue.
 
-## はじめに：どのワールドでも使えるの？
+> **Want an AI to set it up for you?** Ask Claude Code, Codex or a similar agent to "read [`AGENTS.md`](AGENTS.md) and build a test world for the shout bar". It covers project creation through building the test scene on Windows, macOS and Linux (only the Unity and VRChat account steps are left to you).
 
-**いいえ。これは「ワールドを作る人」が、自分のワールドに組み込む部品です。**
+## First: does it work in any world?
 
-- VRChat では、ワールドの中身を変えられるのはそのワールドの作者だけです。他の人が作ったワールドに、後からこのボタンを置くことはできません。
-- 使うには、Unity で自分のワールドを作り、このギミックを組み込んで、VRChat にアップロードします。手順は下の「ワールドに組み込む」にあります。
-- できあがったワールドに遊びに来た人は、何も準備しなくてもボタンを押せます。
+**No. It is a part that world *creators* build into their own worlds.**
 
-「どのワールドでも叫びたい」場合は、アバター側のギミック（アバターのメニューから音やエフェクトを出す）として作る必要があります。このリポジトリはワールド用で、アバター用ではありません。
+- In VRChat, only the author of a world can change what is inside it. You cannot add these buttons to someone else's world afterwards.
+- To use it, build your own world in Unity, incorporate this gimmick, and upload it to VRChat. The steps are in "For world creators: incorporating it" below.
+- People who visit the finished world can press the buttons without setting anything up.
 
-## 遊ぶ人へ：使い方
+If you want to shout in *any* world, you need an avatar-side gimmick (sounds and effects triggered from the avatar menu). This repository is for worlds, not avatars.
 
-1. このギミックが入ったワールドに入ります。
-2. カウンターのボタンに近づき、ボタンを狙ってクリック（VR ならトリガー）します。ボタンには「マルクス！」などの名前が表示されます。
-3. 押すと、その場の全員に演出が出て、スコアボードの数字が増えます。
-4. 連打しても、0.5 秒に 1 回までしか数えません。
+## For players: how to use it
 
-## ワールドを作る人へ：組み込む
+1. Join a world that has this gimmick installed.
+2. Walk up to the counter buttons and click one (in VR, pull the trigger) while aiming at it. Each button shows its name, such as "Marx!".
+3. Pressing it plays the effects for everyone there and increases the scoreboard numbers.
+4. Even if you mash it, only one press per 0.5 seconds is counted.
 
-### 必要なもの
-- Windows の PC（VRChat のワールド制作は Unity を使います）
-- [VRChat Creator Companion（VCC）](https://vrchat.com/home/download)
-- VRChat のアカウント（ワールドのアップロードには、アカウントの信頼度などの条件があります）
-- VRChat Worlds SDK 3.8.1 以降（パラメータ付きのネットワークイベントを使うため）
-- 日本語を表示できる TextMeshPro 用のフォント（Noto Sans JP などから作成）
+## For world creators: incorporating it
 
-### 1. ワールドのプロジェクトを作る
-1. VCC を開き、「Create New Project」から **Worlds** のテンプレートでプロジェクトを作ります。
-2. Worlds SDK が 3.8.1 以降になっていることを確認します（VCC の「Manage Project」で更新できます）。
-3. 「Open Project」で Unity を開きます。
+### What you need
+- A Windows PC (VRChat world creation uses Unity)
+- [VRChat Creator Companion (VCC)](https://vrchat.com/home/download)
+- A VRChat account (uploading worlds has requirements such as account trust level)
+- VRChat Worlds SDK 3.8.1 or later (the gimmick uses parameterised network events)
+- A TextMeshPro font that can render Japanese (built from something like Noto Sans JP)
 
-### 2. スクリプトを入れる
-1. このリポジトリの `Assets/Scripts/` の `.cs` ファイル 3 つを、Unity プロジェクトの `Assets/Scripts/` にコピーします。
-2. Unity の Project ウィンドウで、それぞれの `.cs` を右クリック → **Create → U# Script** を選び、UdonSharp のアセットを作ります。
+### 1. Create the world project
+1. Open VCC and create a project from the **Worlds** template via "Create New Project".
+2. Check that the Worlds SDK is 3.8.1 or later (you can update it in VCC's "Manage Project").
+3. Open the project in Unity with "Open Project".
 
-### 3. 組み立てる
-1. 空の GameObject を作って `ShoutManager` と名付け、Udon Behaviour コンポーネントを追加して、`ShoutManager` を割り当てます。
-2. カウンターにボタン用の Cube を 3 つ置きます（Collider が必要です）。
-   - それぞれに Udon Behaviour を追加して `ShoutButton` を割り当てる
-   - `manager` に先ほどの ShoutManager、`index` に 0 / 1 / 2 を入れる
-   - Interaction Text に「マルクス！」「ニーチェ！」「フロイト！」と入れる
-3. 演出を用意して、ShoutManager の配列に index の順で入れます。
-   - `sounds`：AudioSource（Play On Awake はオフ）
-   - `particles`：ParticleSystem（Play On Awake はオフ）
-   - `popups`：肖像やロゴを載せた World Space Canvas など。出現アニメを付けると映えます
-4. World Space Canvas に TextMeshPro を置き、ShoutManager の `scoreText` に割り当てます。
-5. スタッフ用の場所に Cube を置き、`ShoutResetButton` を割り当てて `manager` を設定します（話の区切りでカウントをゼロに戻す用）。
+### 2. Add the scripts
+1. Copy the three `.cs` files from this repository's `Assets/Scripts/` into your Unity project's `Assets/Scripts/`.
+2. In Unity's Project window, right-click each `.cs` → **Create → U# Script** to create the UdonSharp assets.
 
-### 4. テストする
-1. VRChat SDK のコントロールパネルの「Build & Test」で、クライアントを **2 つ** 起動します。
-2. 片方でボタンを押し、もう片方にも演出が出るか確認します。
-3. 片方を抜けて入り直し、途中から入った人にもカウントが正しく見えるか確認します。
+### 3. Build it
+1. Create an empty GameObject named `ShoutManager`, add a Udon Behaviour component, and assign `ShoutManager` to it.
+2. Place three button Cubes on the counter (each needs a Collider).
+   - Add a Udon Behaviour to each and assign `ShoutButton`
+   - Set `manager` to the ShoutManager above and `index` to 0 / 1 / 2
+   - Set the Interaction Text to "Marx!", "Nietzsche!", "Freud!"
+3. Prepare the effects and put them into the ShoutManager arrays in index order.
+   - `sounds`: AudioSources (Play On Awake off)
+   - `particles`: ParticleSystems (Play On Awake off)
+   - `popups`: World Space Canvases carrying portraits or logos; an appear animation makes them stand out
+4. Place a TextMeshPro object on a World Space Canvas and assign it to ShoutManager's `scoreText`.
+5. Place a Cube somewhere staff-only, assign `ShoutResetButton`, and set its `manager` (to zero the counts between episodes).
 
-### 5. アップロードする
-VRChat SDK のコントロールパネルの「Build & Upload」から、ワールドをアップロードします。最初は Private で公開して、友達と試すのがおすすめです。
+### 4. Test it
+1. In the VRChat SDK control panel, use "Build & Test" to start **two** clients.
+2. Press a button in one and check that the effects appear in the other.
+3. Leave one client and rejoin, and check that the counts show correctly for someone arriving mid-session.
 
-## カスタマイズ
+### 5. Upload it
+Upload the world from the VRChat SDK control panel's "Build & Upload". Publishing it as Private first, to try it with friends, is recommended.
 
-| やりたいこと | 方法 |
+## Customising
+
+| What you want | How |
 |---|---|
-| 叫ぶ名前を変える・増やす | ShoutManager の `shoutNames` を書き換え、ボタンと演出を同じ数だけ用意する（最大 8 個） |
-| 連打の間隔を変える | `cooldownSeconds`（既定 0.5 秒） |
-| ポップアップの表示時間 | `popupSeconds`（既定 2 秒） |
-| 誰でもリセットできるようにする | `onlyMasterCanReset` をオフにする |
-| 英語など他の言語にする | `shoutNames`、各ボタンの Interaction Text、ポップアップの文字を書き換える（例：Marx / Nietzsche / Freud）。英語は Unity 標準のフォントで表示でき、日本語フォントの準備はいらない |
+| Change or add the shouted names | Rewrite `shoutNames` on ShoutManager and provide the same number of buttons and effects (up to 8) |
+| Change the mash limit | `cooldownSeconds` (default 0.5 s) |
+| Popup display time | `popupSeconds` (default 2 s) |
+| Let anyone reset | Turn `onlyMasterCanReset` off |
+| Use it in another language (the text here is Japanese by default) | Rewrite `shoutNames`, each button's Interaction Text and the popup text (e.g. Marx / Nietzsche / Freud). English and other Latin-script text render with Unity's standard font, so no Japanese font is needed |
 
-## しくみ
+## How it works
 
-- ボタンを押した人が、ShoutManager の持ち主（オーナー）にカウントの加算を頼み、同時に全員に演出の再生を知らせます。
-- カウントは同期変数なので、途中から入った人にも累計が見えます。
-- オーナーがワールドを抜けると、VRChat が自動で別の人にオーナーを引き継ぎます。
+- The person who presses a button asks the owner of the ShoutManager to increment the counts, and at the same time tells everyone to play the effects.
+- The counts are synced variables, so late joiners see the totals too.
+- If the owner leaves the world, VRChat automatically hands ownership to someone else.
 
-## 注意
+## Cautions
 
-- **肖像や画像**は、パブリックドメインの写真か、自作のイラストを使ってください。
-- **アニメなどの映像**をワールドの中で流すと、著作権の問題になることがあります。各自が自分のサブスクで視聴して、再生のタイミングだけを合わせる使い方を想定しています。
-- VRChat の利用規約とコミュニティガイドラインに沿って使ってください。
+- **Portraits and images**: use public-domain photos or your own artwork.
+- **Showing video such as anime inside a world** can run into copyright problems. The intended use is that everyone watches on their own subscription and only the playback timing is matched.
+- Follow VRChat's Terms of Service and Community Guidelines.
 
-## ライセンス
+## License
 
-MIT License（[LICENSE](LICENSE)）。自由に使って、改造して、配ってかまいません。無保証です。
+MIT License ([LICENSE](LICENSE)). Use it, modify it, redistribute it — no warranty.

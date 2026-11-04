@@ -9,3 +9,6 @@ UserSettings/
 *.sln
 .vs/
 .idea/
+__pycache__/
+*.py[cod]
+.pytest_cache/
